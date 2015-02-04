@@ -44,16 +44,16 @@ class DKRethinkDB(DockerBase):
         # Create a database then drop it which should test influxdb is running
         # and ready. This may fail with ConnectionError as the container is
         # still in the process of starting influxdb.
+        import socket
         import rethinkdb
-
-        conn = rethinkdb.connect(host=interface, port=port, db=db)
 
         count_down = self.retries
         while True:
             try:
+                conn = rethinkdb.connect(host=interface, port=port, db=db)
                 rethinkdb.db_create(db).run(conn)
 
-            except requests.ConnectionError:
+            except socket.error:
                 log.warn("Connection to DB failed. Retrying...")
                 time.sleep(self.sleep_period)
                 count_down -= 1
