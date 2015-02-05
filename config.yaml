@@ -32,3 +32,16 @@ containers:
                   name: admin
                 - port: 28015
                   name: db
+
+    elasticsearch:
+        image: dockerfile/elasticsearch
+        interface: 0.0.0.0
+        auth:
+            user:
+            password:
+        entrypoint:
+        export:
+            wait_for_port: db
+            ports:
+                - port: 9200
+                  name: db

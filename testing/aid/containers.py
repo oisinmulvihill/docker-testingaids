@@ -9,6 +9,7 @@ import pytest
 
 from testing.aid.dk_influx_db import DKInfluxDB
 from testing.aid.dk_rethink_db import DKRethinkDB
+from testing.aid.dk_elasticsearch import DKElasticSearch
 
 
 @pytest.fixture(scope='session')
@@ -112,6 +113,24 @@ def dk_rethinkdb(request):
     dk_cfg = request.getfuncargvalue('dk_config')
 
     service = DKRethinkDB(dk_cfg)
+    service.setUp()
+    request.addfinalizer(service.tearDown)
+
+    return service
+
+
+@pytest.fixture(scope='session')
+def dk_elasticsearch(request):
+    """Create an ElasticSearch container ready for testing.
+
+    This depends on the dk_config fixture.
+
+    :returns: An instance of DKElasticSearch.
+
+    """
+    dk_cfg = request.getfuncargvalue('dk_config')
+
+    service = DKElasticSearch(dk_cfg)
     service.setUp()
     request.addfinalizer(service.tearDown)
 
