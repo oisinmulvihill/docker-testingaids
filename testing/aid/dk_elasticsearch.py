@@ -2,6 +2,7 @@
 """
 """
 import time
+import uuid
 import logging
 
 from testing.aid.dockerbase import DockerBase
@@ -19,7 +20,7 @@ class DKElasticSearch(DockerBase):
     def __init__(self, cfg):
         """Recover our set up from the influxdb container section.
         """
-        super(DKElasticSearch, self).__init__(cfg, 'elasticsearch')
+        super(DKElasticSearch, self).__init__(cfg, 'elasticsearch', retries=20)
 
     def waitForReady(self):
         """Wait for the client socker to be available then attempt to create
@@ -37,22 +38,23 @@ class DKElasticSearch(DockerBase):
         port = [p['export_port'] for p in ports if p['name'] == name]
         port = port[0]
 
-        # Create a database then drop it which should test influxdb is running
-        # and ready. This may fail with ConnectionError as the container is
-        # still in the process of starting influxdb.
-        import socket
-        from pyelasticsearch import ElasticSearch
+        # Connect and then try to create and delete an index. If this works
+        # we are ready to roll.
+        from elasticsearch import ConnectionError
+        from elasticsearch import Elasticsearch as ElasticSearch
 
         count_down = self.retries
         while True:
             try:
-                base_uri = 'http://{}:{}'.format(interface, port)
+                base_uri = 'http://{}:{}/'.format(interface, port)
                 log.info("ElasticSearch base_uri: '{}'".format(base_uri))
-                conn = ElasticSearch(base_uri)
-                #conn.delete_all_indexes()
+                es = ElasticSearch([base_uri])
+                idx = "testreadytorolldb_{}".format(uuid.uuid4().hex)
+                es.indices.create(index=idx, ignore=400)
+                es.indices.delete(index=idx, ignore=[400, 404])
                 break
 
-            except socket.error:
+            except ConnectionError:
                 log.warn("Connection to DB failed. Retrying...")
                 time.sleep(self.sleep_period)
                 count_down -= 1
