@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 Name = 'testing-aid'
 ProjectUrl = ""
-Version = "1.0.1"
+Version = "1.0.2"
 Author = ''
 AuthorEmail = ''
 Maintainer = ''
@@ -20,7 +20,7 @@ needed = [
     'schematics',
     'pyyaml',
     'pytest',
-    'requests<2.5.0',
+    'requests==2.4.3',
     'docker-py',
     'ipdb'
 ]
