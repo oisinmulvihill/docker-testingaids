@@ -46,6 +46,7 @@ class DKRethinkDB(DockerBase):
         # still in the process of starting influxdb.
         import socket
         import rethinkdb
+        from rethinkdb import RqlDriverError
 
         count_down = self.retries
         while True:
@@ -53,8 +54,12 @@ class DKRethinkDB(DockerBase):
                 conn = rethinkdb.connect(host=interface, port=port, db=db)
                 rethinkdb.db_create(db).run(conn)
 
-            except socket.error:
-                log.warn("Connection to DB failed. Retrying...")
+            except (socket.error, RqlDriverError), err:
+                log.warn(
+                    "Connection to DB failed. Retrying... Error: {}".format(
+                        err
+                    )
+                )
                 time.sleep(self.sleep_period)
                 count_down -= 1
                 if not count_down:
