@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 Name = 'testing-aid'
 ProjectUrl = ""
-Version = "1.0.0"
+Version = "1.0.1"
 Author = ''
 AuthorEmail = ''
 Maintainer = ''
