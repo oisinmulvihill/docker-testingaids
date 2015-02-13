@@ -21,6 +21,8 @@ needed = [
     'pyyaml',
     'pytest',
     'requests',
+    # This is required but it insists on a requests version <2.5.0 which
+    # conflicts with other libraries I've no control over.
     #'docker-py',
     'ipdb'
 ]
