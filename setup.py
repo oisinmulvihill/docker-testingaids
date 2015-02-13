@@ -20,6 +20,7 @@ needed = [
     'schematics',
     'pyyaml',
     'pytest',
+    'requests<2.5.0',
     'docker-py',
     'ipdb'
 ]
