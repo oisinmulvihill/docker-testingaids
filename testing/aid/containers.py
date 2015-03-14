@@ -94,7 +94,7 @@ def dk_influxdb(request):
     return service
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def dk_rethinkdb(request):
     """Create an RethinkDB container ready for testing.
 
@@ -119,7 +119,7 @@ def dk_rethinkdb(request):
     return service
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def dk_elasticsearch(request):
     """Create an ElasticSearch container ready for testing.
 
