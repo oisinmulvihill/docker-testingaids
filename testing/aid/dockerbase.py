@@ -15,7 +15,7 @@ def get_log(e=None):
 
 class DockerBase(object):
 
-    def __init__(self, cfg, config_entry, retries=5, sleep_period=2):
+    def __init__(self, cfg, config_entry, retries=60, sleep_period=2):
         """
         """
         log = get_log("DockerBase.__init__")
