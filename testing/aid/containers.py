@@ -7,6 +7,7 @@ import os.path
 import yaml
 import pytest
 
+from testing.aid.dk_redis import DKRedis
 from testing.aid.dk_influx_db import DKInfluxDB
 from testing.aid.dk_rethink_db import DKRethinkDB
 from testing.aid.dk_elasticsearch import DKElasticSearch
@@ -113,6 +114,31 @@ def dk_rethinkdb(request):
     dk_cfg = request.getfuncargvalue('dk_config')
 
     service = DKRethinkDB(dk_cfg)
+    service.setUp()
+    request.addfinalizer(service.tearDown)
+
+    return service
+
+
+@pytest.fixture(scope='function')
+def dk_redis(request):
+    """Create an Redis container ready for testing.
+
+    This depends on the dk_config fixture.
+
+    :returns: An instance of DKRedis.
+
+    The instance variable settings is a dict with all the connection details
+    the end user needs to connect.
+
+    The end user does not need to worry about stopping the container as this
+    will be handled automatically. The container is killed and removed when
+    the test run finishes.
+
+    """
+    dk_cfg = request.getfuncargvalue('dk_config')
+
+    service = DKRedis(dk_cfg)
     service.setUp()
     request.addfinalizer(service.tearDown)
 

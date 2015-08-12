@@ -18,6 +18,20 @@ containers:
                 - port: 8086
                   name: db
 
+    redis:
+        image: dockerfile/redis
+        interface: 0.0.0.0
+        entrypoint:
+        auth:
+            user:
+            password:
+        export:
+            db: 2
+            wait_for_port: db
+            ports:
+                - port: 6379
+                  name: db
+
     rethinkdb:
         image: dockerfile/rethinkdb:latest
         interface: 0.0.0.0
