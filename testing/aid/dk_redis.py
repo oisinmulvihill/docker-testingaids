@@ -44,6 +44,7 @@ class DKRedis(DockerBase):
         value = "testreadytorolldb_{}".format(uuid.uuid4().hex)
 
         import redis
+        from redis.exceptions import ConnectionError
 
         # Create a database then drop it which should test redis is running
         # and ready. This may fail with ConnectionError as the container is
@@ -57,6 +58,9 @@ class DKRedis(DockerBase):
                 val = conn.get(key)
                 if val == value:
                     break
+
+            except ConnectionError:
+                log.warn("Redis not ready. Retrying...")
 
             except:
                 # Raise any other exception.
