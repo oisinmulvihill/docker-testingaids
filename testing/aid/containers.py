@@ -95,8 +95,7 @@ def dk_influxdb(request):
     return service
 
 
-@pytest.fixture(scope='function')
-def dk_rethinkdb(request):
+def _dkrethingdb(request):
     """Create an RethinkDB container ready for testing.
 
     This depends on the dk_config fixture.
@@ -118,6 +117,18 @@ def dk_rethinkdb(request):
     request.addfinalizer(service.tearDown)
 
     return service
+
+
+@pytest.fixture(scope='function')
+def dk_rethinkdb(request):
+    """Rethinkdb per function using _dkrethingdb(request)."""
+    return _dkrethingdb(request)
+
+
+@pytest.fixture(scope='session')
+def dk_rethinkdb_session(request):
+    """Rethinkdb per session using _dkrethingdb(request)."""
+    return _dkrethingdb(request)
 
 
 @pytest.fixture(scope='function')
