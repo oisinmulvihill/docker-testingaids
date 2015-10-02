@@ -24,8 +24,16 @@ needed = [
     # This is required but it insists on a requests version <2.5.0 which
     # conflicts with other libraries I've no control over.
     #'docker-py',
-    'ipdb'
+    'ipdb',
+    'selenium',
 ]
+
+import platform
+
+if platform.system() in ['Linux', 'Darwin']:
+    # Used with selenium webdriver for headless testing.
+    needed.append('pyvirtualdisplay')
+
 
 test_needed = [
 ]
