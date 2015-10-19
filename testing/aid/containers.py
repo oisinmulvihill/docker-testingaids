@@ -131,6 +131,16 @@ def dk_rethinkdb_session(request):
     return _dkrethingdb(request)
 
 
+def _dk_redis(request):
+    dk_cfg = request.getfuncargvalue('dk_config')
+
+    service = DKRedis(dk_cfg)
+    service.setUp()
+    request.addfinalizer(service.tearDown)
+
+    return service
+
+
 @pytest.fixture(scope='function')
 def dk_redis(request):
     """Create an Redis container ready for testing.
@@ -147,13 +157,26 @@ def dk_redis(request):
     the test run finishes.
 
     """
-    dk_cfg = request.getfuncargvalue('dk_config')
+    return _dk_redis(request)
 
-    service = DKRedis(dk_cfg)
-    service.setUp()
-    request.addfinalizer(service.tearDown)
 
-    return service
+@pytest.fixture(scope='session')
+def dk_redis_session(request):
+    """Create an Redis container ready for testing.
+
+    This depends on the dk_config fixture.
+
+    :returns: An instance of DKRedis.
+
+    The instance variable settings is a dict with all the connection details
+    the end user needs to connect.
+
+    The end user does not need to worry about stopping the container as this
+    will be handled automatically. The container is killed and removed when
+    the test run finishes.
+
+    """
+    return _dk_redis(request)
 
 
 @pytest.fixture(scope='function')
