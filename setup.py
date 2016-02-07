@@ -17,7 +17,7 @@ Description = Summary
 ShortDescription = Summary
 
 needed = [
-    'schematics',
+    'schematics==1.1.0',
     'pyyaml',
     'pytest',
     'requests',
