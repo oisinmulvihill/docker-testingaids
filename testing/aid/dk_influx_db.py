@@ -71,5 +71,5 @@ class DKInfluxDB(DockerBase):
                 raise
 
             else:
-                conn.delete_database(db)
+                conn.drop_database(db)
                 break
