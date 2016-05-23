@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 """
+import os
 import time
 import uuid
 import logging
-
-import requests
 
 from testing.aid.dockerbase import DockerBase
 
@@ -23,6 +22,61 @@ class DKRedis(DockerBase):
         """Recover our set up from the redis container section.
         """
         super(DKRedis, self).__init__(cfg, 'redis')
+        log = get_log("DKRedis")
+        self.use_env = False
+
+        if (
+            os.environ.get("REDIS_PORT_6379_TCP_ADDR")
+            and
+            os.environ.get("REDIS_PORT_6379_TCP_PORT")
+        ):
+            self.host = os.environ.get("REDIS_PORT_6379_TCP_ADDR")
+            self.port = os.environ.get("REDIS_PORT_6379_TCP_PORT")
+            log.info(
+                (
+                    "Using from environment REDIS_PORT_6379_TCP_ADDR={} "
+                    "and REDIS_PORT_6379_TCP_PORT={}"
+                ).format(
+                    self.host, self.port
+                )
+            )
+            # Indicate not to start a container but to connect to an
+            # exiting instance.
+            self.use_env = True
+
+    def setUp(self):
+        log = get_log("DKRedis.setUp")
+
+        if self.use_env is False:
+            super(DKRedis, self).setUp()
+
+        else:
+            log.warn(
+                (
+                    "Not starting a container. Using an existing running"
+                    "RethinkDB on host '{}' and port '{}'"
+                ).format(
+                    self.host,
+                    self.port,
+                )
+            )
+
+    def tearDown(self):
+        log = get_log("DKRedis.tearDown")
+
+        if self.use_env is False:
+            super(DKRedis, self).tearDown()
+
+        else:
+            log.warn(
+                (
+                    "Not stopping a container as I'm using an existing running"
+                    "RethinkDB on host '{}' and port '{}'"
+                ).format(
+                    self.host,
+                    self.port,
+                )
+            )
 
     def waitForReady(self):
         """Wait for the client socker to be available then attempt to create
@@ -32,13 +86,19 @@ class DKRedis(DockerBase):
         log = get_log("DKRedis.waitForReady")
 
         # wait for the first port to respond to connections:
-        interface = self.settings['interface']
-        name = self.settings['export']['wait_for_port']
-        # The DB number to check redis is work with:
-        db = int(self.settings['export']['db'])
-        ports = self.settings['export']['ports']
-        port = [p['export_port'] for p in ports if p['name'] == name]
-        port = port[0]
+        if self.use_env is False:
+            # wait for the first port to respond to connections:
+            interface = self.settings['interface']
+            name = self.settings['export']['wait_for_port']
+            # The DB number to check redis is work with:
+            db = int(self.settings['export']['db'])
+            ports = self.settings['export']['ports']
+            port = [p['export_port'] for p in ports if p['name'] == name]
+            port = port[0]
+
+        else:
+            interface = self.host
+            port = self.port
 
         log.info("Testing container is ready for use.")
         value = "testreadytorolldb_{}".format(uuid.uuid4().hex)
@@ -74,5 +134,8 @@ class DKRedis(DockerBase):
                     raise
 
             else:
+                # Update these now they are confirmed working:
+                self.host = interface
+                self.port = port
                 conn.delete(key)
                 break
