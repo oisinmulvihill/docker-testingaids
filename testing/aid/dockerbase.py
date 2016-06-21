@@ -22,6 +22,7 @@ class DockerBase(object):
         self.cfg = cfg
         entry = self.cfg['config']['containers'][config_entry]
         allocate_ports_for(entry['export']['ports'])
+        self.entrypoint = entry.get('entrypoint')
         self.settings = entry
         self.ports = [p['port'] for p in self.settings['export']['ports']]
         self.conn = docker_client(self.cfg)
@@ -45,10 +46,15 @@ class DockerBase(object):
         """
         log = get_log("DockerBase.setUp")
 
+        kwargs = {}
+        if self.entrypoint:
+            kwargs['entrypoint'] = self.entrypoint
+
         box = self.conn.create_container(
             image=self.settings['image'],
             detach=True,
             ports=self.ports,
+            **kwargs
         )
         log.debug("box: '{}'".format(box))
         self.containerId = box['Id']
