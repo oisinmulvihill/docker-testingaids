@@ -88,17 +88,13 @@ class DKRedis(DockerBase):
         # wait for the first port to respond to connections:
         if self.use_env is False:
             # wait for the first port to respond to connections:
-            interface = self.settings['interface']
+            self.host = self.settings['interface']
             name = self.settings['export']['wait_for_port']
             # The DB number to check redis is work with:
             db = int(self.settings['export']['db'])
             ports = self.settings['export']['ports']
             port = [p['export_port'] for p in ports if p['name'] == name]
-            port = port[0]
-
-        else:
-            interface = self.host
-            port = self.port
+            self.port = port[0]
 
         log.info("Testing container is ready for use.")
         value = "testreadytorolldb_{}".format(uuid.uuid4().hex)
@@ -113,7 +109,7 @@ class DKRedis(DockerBase):
         count_down = self.retries
         while True:
             try:
-                conn = redis.StrictRedis(host=interface, port=port, db=db)
+                conn = redis.StrictRedis(host=self.host, port=self.port, db=db)
                 conn.set(key, value)
                 val = conn.get(key)
                 if val == value:
@@ -134,8 +130,6 @@ class DKRedis(DockerBase):
                     raise
 
             else:
-                # Update these now they are confirmed working:
-                self.host = interface
-                self.port = port
+                # Done:
                 conn.delete(key)
                 break
