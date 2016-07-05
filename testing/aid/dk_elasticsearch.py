@@ -20,7 +20,9 @@ class DKElasticSearch(DockerBase):
     def __init__(self, cfg):
         """Recover our set up from the influxdb container section.
         """
-        super(DKElasticSearch, self).__init__(cfg, 'elasticsearch', retries=20)
+        super(DKElasticSearch, self).__init__(
+            cfg, 'elasticsearch', retries=120
+        )
 
     def waitForReady(self):
         """Wait for the client socker to be available then attempt to create
