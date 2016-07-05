@@ -54,7 +54,7 @@ class DKRedis(DockerBase):
             log.warn(
                 (
                     "Not starting a container. Using an existing running"
-                    "RethinkDB on host '{}' and port '{}'"
+                    "Redis Container on host '{}' and port '{}'"
                 ).format(
                     self.host,
                     self.port,
@@ -71,7 +71,7 @@ class DKRedis(DockerBase):
             log.warn(
                 (
                     "Not stopping a container as I'm using an existing running"
-                    "RethinkDB on host '{}' and port '{}'"
+                    "Redis Container on host '{}' and port '{}'"
                 ).format(
                     self.host,
                     self.port,
@@ -111,9 +111,7 @@ class DKRedis(DockerBase):
             try:
                 conn = redis.StrictRedis(host=self.host, port=self.port, db=db)
                 conn.set(key, value)
-                val = conn.get(key)
-                if val == value:
-                    break
+                conn.get(key)
 
             except ConnectionError:
                 log.warn("Redis not ready. Retrying...")
