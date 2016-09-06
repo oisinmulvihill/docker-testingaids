@@ -27,6 +27,7 @@ class DKElasticSearch(DockerBase):
         log = get_log("DKElasticSearch")
         self.use_env = False
         self.base_uri = None
+        self.retries = 900
 
         if (
             os.environ.get("ELASTICSEARCH_PORT_9200_TCP_ADDR")
