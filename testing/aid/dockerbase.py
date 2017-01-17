@@ -50,15 +50,6 @@ class DockerBase(object):
         if self.entrypoint:
             kwargs['entrypoint'] = self.entrypoint
 
-        box = self.conn.create_container(
-            image=self.settings['image'],
-            detach=True,
-            ports=self.ports,
-            **kwargs
-        )
-        log.debug("box: '{}'".format(box))
-        self.containerId = box['Id']
-
         port_bindings = {}
         interface = self.settings['interface']
         for entry in self.settings['export']['ports']:
@@ -67,9 +58,22 @@ class DockerBase(object):
             )
         log.debug("box: port binding '{}'".format(port_bindings))
 
+        host_config = self.conn.create_host_config(
+            port_bindings=port_bindings
+        )
+
+        box = self.conn.create_container(
+            image=self.settings['image'],
+            detach=True,
+            ports=self.ports,
+            host_config=host_config,
+            **kwargs
+        )
+        log.debug("box: '{}'".format(box))
+        self.containerId = box['Id']
+
         self.conn.start(
             self.containerId,
-            port_bindings=port_bindings,
         )
         log.debug(
             "box: container started '{}'".format(self.settings['image'])
@@ -115,7 +119,7 @@ class DockerBase(object):
     def tearDown(self):
         """Stop and remove the running docker instance setUp started.
         """
-        log = get_log("DKInfluxDB.tearDown")
+        log = get_log("DockerBase.tearDown")
 
         log.info(
             "Stopping container '{}:{}'".format(
