@@ -3,6 +3,8 @@
 Setuptools script for testing-aids (testing.aid)
 
 """
+import platform
+
 from setuptools import setup, find_packages
 
 Name = 'testing-aid'
@@ -23,12 +25,10 @@ needed = [
     'requests',
     # This is required but it insists on a requests version <2.5.0 which
     # conflicts with other libraries I've no control over.
-    #'docker-py',
+    # 'docker-py',
     'ipdb',
-    'selenium',
+    # 'selenium',
 ]
-
-import platform
 
 if platform.system() in ['Linux', 'Darwin']:
     # Used with selenium webdriver for headless testing.
